@@ -1,24 +1,32 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+import './style.css';
+import * as THREE from 'three';
+import { createScene } from './scene.js';
+import { createText } from './multitaskText.js';
+import { createPostProcessing } from './postprocessing.js';
+import { createBackground } from './background.js';
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+const { scene, camera } = createScene();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+document.addEventListener("contextmenu", (event) => event.preventDefault());
+const { camera: bgCamera, uniforms } = createBackground(scene);
 
-setupCounter(document.querySelector('#counter'))
+let composer, updateGradientColor;
+createText(scene).then((textMesh) => {
+    ({ composer, updateGradientColor } = createPostProcessing(renderer, scene, camera, textMesh));
+});
+
+function animate() {
+    const time = performance.now() * 0.001;
+    uniforms.u_time.value = time;
+
+    if (updateGradientColor) {
+        updateGradientColor(time);
+    }
+
+    if (composer) composer.render();
+    requestAnimationFrame(animate);
+}
+
+animate();

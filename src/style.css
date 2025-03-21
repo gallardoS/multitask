@@ -67,3 +67,8 @@ canvas {
 #credits:hover {
   opacity: 1;
 }
+
+#credits a {
+  text-decoration: none;
+  color: inherit;
+}

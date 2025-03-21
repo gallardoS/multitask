@@ -54,7 +54,7 @@ canvas {
 }
 #credits {
   position: absolute;
-  bottom: 10px;
+  bottom: 20px;
   left: 10px;
   font-family: 'RobotoMono-Light', sans-serif;
   font-size: 20px;
@@ -71,4 +71,5 @@ canvas {
 #credits a {
   text-decoration: none;
   color: inherit;
+  cursor: url('/dot_large.svg') 16 16, auto;
 }

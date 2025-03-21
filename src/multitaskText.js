@@ -31,7 +31,7 @@ export function createText(scene) {
             function updateTextScale() {
                 const aspect = window.innerWidth / window.innerHeight;
                 const baseScale = 1;
-                textMesh.scale.set(baseScale / aspect*2, baseScale, 0.1);
+                textMesh.scale.setScalar(baseScale);
               }
               
               updateTextScale();

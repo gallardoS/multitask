@@ -30,3 +30,32 @@ function animate() {
 }
 
 animate();
+
+window.addEventListener('resize', () => {
+  const width = Math.max(window.innerWidth, 480);  
+  const height = Math.max(window.innerHeight, 320);
+  const aspect = width / height;
+
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  if (camera.isOrthographicCamera) {
+    camera.left = -frustumSize * aspect;
+    camera.right = frustumSize * aspect;
+    camera.top = frustumSize;
+    camera.bottom = -frustumSize;
+    camera.updateProjectionMatrix();
+  }
+
+  if (composer) {
+    composer.setSize(width, height);
+    const fxaaPass = composer.passes.find(p => p.material?.uniforms?.resolution);
+    if (fxaaPass) {
+      fxaaPass.material.uniforms['resolution'].value.set(1 / width, 1 / height);
+    }
+  }
+  
+  if (uniforms?.u_resolution) {
+    uniforms.u_resolution.value.set(width, height);
+  }
+});

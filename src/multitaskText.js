@@ -26,9 +26,17 @@ export function createText(scene) {
 
             const textMesh = new THREE.Mesh(textGeometry, material);
             textGeometry.center();
-            textMesh.scale.set(1, 1, 0.1);
             textMesh.position.set(0, 20, 0);
             scene.add(textMesh);
+            function updateTextScale() {
+                const aspect = window.innerWidth / window.innerHeight;
+                const baseScale = 1;
+                textMesh.scale.set(baseScale / aspect*2, baseScale, 0.1);
+              }
+              
+              updateTextScale();
+            window.addEventListener('resize', updateTextScale);
+              
 
             let mouseX = 0, mouseY = 0;
             let velocityX = 0, velocityY = 0;

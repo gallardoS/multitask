@@ -14,7 +14,6 @@ body, html {
   overflow: hidden;
   width: 100%;
   height: 100%;
-  cursor: url('/dot_large.svg') 16 16, auto;
   font-family: 'RobotoMono-Light', sans-serif;
 }
 #play-button {
@@ -30,7 +29,6 @@ body, html {
   color: white;
   z-index: 10;
   outline: none;
-  cursor: url('/dot_large.svg') 16 16, pointer;
   transition: all 0.3s ease;
 }
 
@@ -67,10 +65,8 @@ canvas {
 #credits a {
   text-decoration: none;
   color: inherit;
-  cursor: url('/dot_large.svg') 16 16, auto;
 }
 
-/* Rotate Warning */
 #rotate-warning {
   position: relative;
   top: 0;
@@ -91,7 +87,6 @@ canvas {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
-  cursor: url('/dot_large.svg') 16 16, auto;
 }
 
 #rotate-warning.visible {

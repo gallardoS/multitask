@@ -1,9 +1,12 @@
+import { initCursorHandlers } from './cursor.js';
 import * as THREE from 'three';
 import { createScene } from './scene.js';
 import { createText } from './multitaskText.js';
 import { createPostProcessing } from './postprocessing.js';
 import { createBackground } from './background.js';
 import { CheckOrientation } from './utils/CheckOrientation.js';
+
+initCursorHandlers();
 
 const frustumSize = 50;
 const { scene, camera } = createScene(frustumSize);

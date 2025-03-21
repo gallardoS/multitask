@@ -21,11 +21,11 @@ const uiElements = [
   document.getElementById('credits')
 ];
 
-let composer, updateGradientColor, textMesh;
+let composer, textMesh;
 
 createText(scene).then((mesh) => {
   textMesh = mesh;
-  ({ composer, updateGradientColor } = createPostProcessing(renderer, scene, camera, textMesh));
+  ({ composer } = createPostProcessing(renderer, scene, camera, textMesh)); 
 
   new CheckOrientation({
     onLock: () => {
@@ -42,10 +42,6 @@ createText(scene).then((mesh) => {
 function animate() {
     const time = performance.now() * 0.001;
     uniforms.u_time.value = time;
-
-    if (updateGradientColor) {
-        updateGradientColor(time);
-    }
 
     if (composer) composer.render();
     requestAnimationFrame(animate);

@@ -16,7 +16,10 @@ export function createPostProcessing(renderer, scene, camera, textMesh) {
     outlinePass.edgeStrength = 2;
     outlinePass.edgeGlow = 1;
     outlinePass.edgeThickness = 1;
-    outlinePass.hiddenEdgeColor = new THREE.Color(0x000000);
+
+    outlinePass.visibleEdgeColor = new THREE.Color(0xffffff); 
+    outlinePass.hiddenEdgeColor = new THREE.Color(0x000000); 
+
     composer.addPass(outlinePass);
 
     if (textMesh) {
@@ -27,14 +30,5 @@ export function createPostProcessing(renderer, scene, camera, textMesh) {
     fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
     composer.addPass(fxaaPass);
 
-    function updateGradientColor(time) {
-        const pulse = Math.sin(time * 2) * 0.3 + 0.7; 
-        const r = Math.sin(time * 0.5) * 0.5 + 0.5;
-        const g = Math.sin(time * 0.5 + Math.PI / 3) * 0.5 + 0.5;
-        const b = Math.sin(time * 0.5 + (2 * Math.PI) / 3) * 0.5 + 0.5;
-
-        outlinePass.visibleEdgeColor.setRGB(r, g, b);
-    }
-
-    return { composer, updateGradientColor };
+    return { composer };
 }

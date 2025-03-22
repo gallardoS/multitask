@@ -80,3 +80,27 @@ window.addEventListener('resize', () => {
     uniforms.u_resolution.value.set(width, height);
   }
 });
+
+// --- Ping al backend cada 5s ---
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
+
+function pingBackend() {
+  fetch(`${API_BASE_URL}/scores/ping`, {
+    method: 'GET',
+    headers: {
+      'x-api-key': API_KEY
+    }
+  }).then(response => {
+    if (!response.ok) {
+      console.warn('[ping] Falló el ping:', response.status);
+    } else {
+      console.log('[ping] OK');
+    }
+  }).catch(err => {
+    console.error('[ping] Error de red:', err);
+  });
+}
+
+setInterval(pingBackend, 5000); // cada 5 segundos
+pingBackend(); // primer ping inmediato

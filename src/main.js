@@ -8,9 +8,6 @@ import { CheckOrientation } from './utils/CheckOrientation.js';
 
 initCursorHandlers();
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = import.meta.env.VITE_API_KEY;
-
 const frustumSize = 50;
 const { scene, camera } = createScene(frustumSize);
 
@@ -83,3 +80,20 @@ window.addEventListener('resize', () => {
     uniforms.u_resolution.value.set(width, height);
   }
 });
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
+
+setInterval(() => {
+  fetch(`${API_BASE_URL}/scores/ping`, {
+    headers: {
+      'X-API-KEY': API_KEY
+    }
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error('Error de red');
+      return res.text();
+    })
+    .then((data) => console.log('[ping]', data))
+    .catch((err) => console.error('[ping] Error de red:', err));
+}, 5000);

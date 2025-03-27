@@ -67,6 +67,16 @@ canvas {
   color: inherit;
 }
 
+#credits svg {
+  display: none;
+  margin-left: 0;
+  vertical-align: middle;
+}
+
+#credits:hover svg {
+  display: inline;
+}
+
 #rotate-warning {
   position: relative;
   top: 0;
@@ -102,4 +112,12 @@ canvas {
 
 .hidden {
   display: none !important;
+}
+
+.nav-item svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: currentColor;
+  stroke: none;
 }

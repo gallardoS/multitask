@@ -67,16 +67,17 @@ canvas {
   color: inherit;
 }
 
-#credits svg {
-  display: none;
-  margin-left: 0;
-  vertical-align: middle;
-}
-
-#credits:hover svg {
+#credits:hover img {
   display: inline;
 }
-
+#credits img {
+  display: none;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  filter: brightness(0) invert(1);
+  margin-left: 0px;
+}
 #rotate-warning {
   position: relative;
   top: 0;
@@ -120,4 +121,10 @@ canvas {
   vertical-align: middle;
   fill: currentColor;
   stroke: none;
+}
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: currentColor;
 }

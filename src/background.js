@@ -7,7 +7,9 @@ export function createBackground(scene) {
     const uniforms = {
         u_time: { value: 0.0 },
         u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        u_state: { value: 0.0 }
+        u_stateA: { value: 0.0 },
+        u_stateB: { value: 0.0 },
+        u_mix: { value: 0.0 }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);
@@ -22,17 +24,16 @@ export function createBackground(scene) {
             precision highp float;
             uniform float u_time;
             uniform vec2 u_resolution;
-            uniform float u_state;
+            uniform float u_stateA;
+            uniform float u_stateB;
+            uniform float u_mix;
 
-            vec3 colorA = vec3(233.0/255.0, 67.0/255.0, 63.0/255.0);  // rojo
-            vec3 colorB = vec3(205.0/255.0, 226.0/255.0, 73.0/255.0); // amarillo
-            vec3 colorC = vec3(66.0/255.0, 204.0/255.0, 104.0/255.0); // verde
-            vec3 colorD = vec3(62.0/255.0, 189.0/255.0, 223.0/255.0); // azul
+            vec3 colorA = vec3(233.0/255.0, 67.0/255.0, 63.0/255.0);
+            vec3 colorB = vec3(205.0/255.0, 226.0/255.0, 73.0/255.0);
+            vec3 colorC = vec3(66.0/255.0, 204.0/255.0, 104.0/255.0);
+            vec3 colorD = vec3(62.0/255.0, 189.0/255.0, 223.0/255.0);
 
-            void main() {
-                vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-                float time = u_time * 1.0;
-
+            vec3 getStateColor(float u_state, vec2 uv, float time) {
                 vec2 waveUV = uv;
                 
                 waveUV.x += sin(uv.y * 5.0 + time * 0.8) * 0.02;
@@ -182,7 +183,23 @@ export function createBackground(scene) {
                     colorD * influenceD
                 ) / total;
 
-                gl_FragColor = vec4(color, 1.0);
+                float blackState = smoothstep(4.0, 5.0, clamp(u_state, 4.0, 5.0));
+                
+                color = mix(color, vec3(0.0), blackState);
+
+                return color;
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+                float time = u_time * 1.0;
+
+                vec3 colA = getStateColor(u_stateA, uv, time);
+                vec3 colB = getStateColor(u_stateB, uv, time);
+
+                vec3 finalColor = mix(colA, colB, u_mix);
+
+                gl_FragColor = vec4(finalColor, 1.0);
             }
         `
     });

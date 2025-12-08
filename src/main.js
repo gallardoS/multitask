@@ -6,10 +6,9 @@ import { createPostProcessing } from './postprocessing.js';
 import { createBackground } from './background.js';
 import { CheckOrientation } from './utils/CheckOrientation.js';
 
-initCursorHandlers();
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = import.meta.env.VITE_API_KEY;
+
+initCursorHandlers();
 
 const frustumSize = 50;
 const { scene, camera } = createScene(frustumSize);
@@ -24,14 +23,31 @@ const { camera: bgCamera, uniforms } = createBackground(scene);
 
 const uiElements = [
   document.getElementById('play-button'),
-  document.getElementById('credits')
+  document.getElementById('credits'),
+  document.getElementById('nav-left'),
+  document.getElementById('nav-right')
 ];
 
 let composer, textMesh;
+let targetState = 0;
+const MAX_STATE = 4;
+
+document.getElementById('nav-left').addEventListener('click', () => {
+  if (targetState > 0) targetState--;
+});
+
+document.getElementById('nav-right').addEventListener('click', () => {
+  if (targetState < MAX_STATE) {
+    targetState++;
+    console.log(`State advancing to: ${targetState}`);
+  } else {
+    console.log('Max state reached');
+  }
+});
 
 createText(scene).then((mesh) => {
   textMesh = mesh;
-  ({ composer } = createPostProcessing(renderer, scene, camera, textMesh)); 
+  ({ composer } = createPostProcessing(renderer, scene, camera, textMesh));
 
   new CheckOrientation({
     onLock: () => {
@@ -46,17 +62,19 @@ createText(scene).then((mesh) => {
 });
 
 function animate() {
-    const time = performance.now() * 0.001;
-    uniforms.u_time.value = time;
+  const time = performance.now() * 0.001;
+  uniforms.u_time.value = time;
 
-    if (composer) composer.render();
-    requestAnimationFrame(animate);
+  uniforms.u_state.value = THREE.MathUtils.lerp(uniforms.u_state.value, targetState, 0.02);
+
+  if (composer) composer.render();
+  requestAnimationFrame(animate);
 }
 
 animate();
 
 window.addEventListener('resize', () => {
-  const width = Math.max(window.innerWidth, 480);  
+  const width = Math.max(window.innerWidth, 480);
   const height = Math.max(window.innerHeight, 320);
   const aspect = width / height;
 
@@ -78,8 +96,25 @@ window.addEventListener('resize', () => {
       fxaaPass.material.uniforms['resolution'].value.set(1 / width, 1 / height);
     }
   }
-  
+
   if (uniforms?.u_resolution) {
     uniforms.u_resolution.value.set(width, height);
   }
 });
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_KEY = import.meta.env.VITE_API_KEY;
+
+setInterval(() => {
+  fetch(`${API_BASE_URL}/scores/ping`, {
+    headers: {
+      'X-API-KEY': API_KEY
+    }
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error('Error de red');
+      return res.text();
+    })
+    .then((data) => console.log('[ping]', data))
+    .catch((err) => console.error('[ping] Error de red:', err));
+}, 5000);

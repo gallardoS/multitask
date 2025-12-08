@@ -48,6 +48,7 @@ canvas {
 
 #play-button:hover {
   opacity: 1;
+  transform: translate(-50%, -50%) scale(1.025);
 }
 
 @keyframes glowing {
@@ -171,7 +172,6 @@ canvas {
 #state-menu {
   position: absolute;
   bottom: 80px;
-  top: 30px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;

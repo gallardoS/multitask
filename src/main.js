@@ -1,13 +1,14 @@
-import { initCursorHandlers } from './cursor.js';
+import { initCursorHandlers } from './utils/cursor.js';
 import * as THREE from 'three';
-import { createScene } from './scene.js';
-import { createText } from './multitaskText.js';
-import { createPostProcessing } from './postprocessing.js';
-import { createBackground } from './background.js';
-import { CheckOrientation } from './utils/CheckOrientation.js';
-import { StateManager } from './stateManager.js';
-import { UIManager } from './uiManager.js';
-import { ApiService } from './apiService.js';
+import { createScene } from './scene/scene.js';
+import { TextActor } from './scene/TextActor.js';
+import { createPostProcessing } from './scene/postprocessing.js';
+import { createBackground } from './scene/background.js';
+import { CheckOrientation } from './utils/checkOrientation.js';
+import { StateManager } from './managers/stateManager.js';
+import { UIManager } from './managers/uiManager.js';
+import { InputManager } from './managers/inputManager.js';
+import { ApiService } from './services/apiService.js';
 
 initCursorHandlers();
 
@@ -22,16 +23,16 @@ document.addEventListener("contextmenu", (event) => event.preventDefault());
 
 const { camera: bgCamera, uniforms } = createBackground(scene);
 
-
 const stateManager = new StateManager();
 const uiManager = new UIManager(stateManager);
 const apiService = new ApiService();
+const inputManager = new InputManager();
+const textActor = new TextActor(scene);
 
 let composer, textMesh;
 
-
 uiManager.init();
-
+inputManager.init();
 
 uiManager.onTransition = (transitionData) => {
   if (transitionData.mode === 'sequential') {
@@ -44,18 +45,18 @@ uiManager.onTransition = (transitionData) => {
   }
 };
 
-createText(scene).then((mesh) => {
+textActor.load().then((mesh) => {
   textMesh = mesh;
   ({ composer } = createPostProcessing(renderer, scene, camera, textMesh));
 
   new CheckOrientation({
     onLock: () => {
       uiManager.setElementsVisibility(false);
-      if (textMesh) textMesh.visible = false;
+      textActor.setVisible(false);
     },
     onUnlock: () => {
       uiManager.setElementsVisibility(true);
-      if (textMesh) textMesh.visible = true;
+      textActor.setVisible(true);
     }
   });
 });
@@ -78,6 +79,9 @@ function animate() {
       }
     }
   }
+
+  const inputDelta = inputManager.getDelta();
+  textActor.update(inputDelta);
 
   if (composer) composer.render();
   requestAnimationFrame(animate);

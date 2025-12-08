@@ -5,6 +5,9 @@ import { createText } from './multitaskText.js';
 import { createPostProcessing } from './postprocessing.js';
 import { createBackground } from './background.js';
 import { CheckOrientation } from './utils/CheckOrientation.js';
+import { StateManager } from './stateManager.js';
+import { UIManager } from './uiManager.js';
+import { ApiService } from './apiService.js';
 
 initCursorHandlers();
 
@@ -19,86 +22,27 @@ document.addEventListener("contextmenu", (event) => event.preventDefault());
 
 const { camera: bgCamera, uniforms } = createBackground(scene);
 
-const uiElements = [
-  document.getElementById('play-button'),
-  document.getElementById('credits'),
-  document.getElementById('nav-left'),
-  document.getElementById('nav-right'),
-  document.getElementById('state-menu')
-];
+
+const stateManager = new StateManager();
+const uiManager = new UIManager(stateManager);
+const apiService = new ApiService();
 
 let composer, textMesh;
-let currentState = 0;
-let nextState = 0;
-let transitionProgress = 0;
-let isTransitioning = false;
-let transitionMode = 'crossfade';
-const MAX_STATE = 5;
 
-const navLeft = document.getElementById('nav-left');
-if (navLeft) {
-  navLeft.addEventListener('click', () => {
-    if (isTransitioning) return;
-    if (currentState > 0) {
-      triggerTransition(currentState - 1);
-    }
-    updateActiveButton();
-  });
-}
 
-const navRight = document.getElementById('nav-right');
-if (navRight) {
-  navRight.addEventListener('click', () => {
-    if (isTransitioning) return;
-    if (currentState < MAX_STATE) {
-      triggerTransition(currentState + 1);
-    }
-    updateActiveButton();
-  });
-}
+uiManager.init();
 
-const stateBtns = document.querySelectorAll('.state-btn');
-stateBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (isTransitioning) return;
-    const target = parseInt(btn.dataset.state);
-    if (target !== currentState) {
-      triggerTransition(target);
-    }
-    updateActiveButton();
-  });
-});
 
-function triggerTransition(target) {
-  isTransitioning = true;
-  nextState = target;
-  transitionProgress = 0;
-
-  if (Math.abs(nextState - currentState) === 1) {
-    transitionMode = 'sequential';
-    uniforms.u_stateA.value = currentState;
-    uniforms.u_mix.value = 0;
+uiManager.onTransition = (transitionData) => {
+  if (transitionData.mode === 'sequential') {
+    uniforms.u_stateA.value = transitionData.stateA;
+    uniforms.u_mix.value = transitionData.mix;
   } else {
-    transitionMode = 'crossfade';
-    uniforms.u_stateA.value = currentState;
-    uniforms.u_stateB.value = nextState;
-    uniforms.u_mix.value = 0;
+    uniforms.u_stateA.value = transitionData.stateA;
+    uniforms.u_stateB.value = transitionData.stateB;
+    uniforms.u_mix.value = transitionData.mix;
   }
-}
-
-function updateActiveButton() {
-  const activeState = isTransitioning ? nextState : currentState;
-  stateBtns.forEach(btn => {
-    const s = parseInt(btn.dataset.state);
-    if (s === activeState) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-}
-
-updateActiveButton();
+};
 
 createText(scene).then((mesh) => {
   textMesh = mesh;
@@ -106,11 +50,11 @@ createText(scene).then((mesh) => {
 
   new CheckOrientation({
     onLock: () => {
-      uiElements.forEach(el => el?.classList.add('hidden'));
+      uiManager.setElementsVisibility(false);
       if (textMesh) textMesh.visible = false;
     },
     onUnlock: () => {
-      uiElements.forEach(el => el?.classList.remove('hidden'));
+      uiManager.setElementsVisibility(true);
       if (textMesh) textMesh.visible = true;
     }
   });
@@ -120,22 +64,17 @@ function animate() {
   const time = performance.now() * 0.001;
   uniforms.u_time.value = time;
 
-  if (isTransitioning) {
-    transitionProgress += 0.01;
-
-    if (transitionProgress >= 1.0) {
-      transitionProgress = 1.0;
-      isTransitioning = false;
-      currentState = nextState;
-
-      uniforms.u_stateA.value = currentState;
-      uniforms.u_stateB.value = currentState;
-      uniforms.u_mix.value = 0.0;
+  const updateResult = stateManager.update();
+  if (updateResult) {
+    if (updateResult.finished) {
+      uniforms.u_stateA.value = updateResult.stateA;
+      uniforms.u_stateB.value = updateResult.stateB;
+      uniforms.u_mix.value = updateResult.mix;
     } else {
-      if (transitionMode === 'sequential') {
-        uniforms.u_stateA.value = THREE.MathUtils.lerp(currentState, nextState, transitionProgress);
+      if (stateManager.transitionMode === 'sequential') {
+        uniforms.u_stateA.value = updateResult.stateA;
       } else {
-        uniforms.u_mix.value = transitionProgress;
+        uniforms.u_mix.value = updateResult.mix;
       }
     }
   }
@@ -175,21 +114,5 @@ window.addEventListener('resize', () => {
   }
 });
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_KEY = import.meta.env.VITE_API_KEY;
 
-setInterval(() => {
-  if (API_BASE_URL && API_KEY) {
-    fetch(`${API_BASE_URL}/scores/ping`, {
-      headers: {
-        'X-API-KEY': API_KEY
-      }
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error('Error de red');
-        return res.text();
-      })
-      .then((data) => console.log('[ping]', data))
-      .catch((err) => console.error('[ping] Error de red:', err));
-  }
-}, 5000);
+apiService.startPing();

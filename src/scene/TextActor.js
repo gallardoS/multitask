@@ -10,7 +10,15 @@ export class TextActor {
         this.velocityY = 0;
         this.friction = 0.5;
         this.deceleration = 0.3;
+        this.sensitivity = 0.5;
+
+        this.targetInputX = 0;
+        this.targetInputY = 0;
+        this.smoothedInputX = 0;
+        this.smoothedInputY = 0;
+        this.smoothFactor = 0.05;
     }
+
 
     load() {
         return new Promise((resolve) => {
@@ -54,21 +62,25 @@ export class TextActor {
     update(deltaInput) {
         if (!this.mesh) return;
 
-        const sensitivity = 0.3; // Increased as per user request
 
-        // Apply input impulse
-        // In the original code, velocity was effectively overwritten by the latest delta.
-        // Here we add the accumulated delta (which is larger), so we scale it down.
+
         if (deltaInput.x !== 0 || deltaInput.y !== 0) {
-            this.velocityX += deltaInput.x * sensitivity;
-            this.velocityY += deltaInput.y * sensitivity;
+            this.targetInputX = deltaInput.x * this.sensitivity;
+            this.targetInputY = deltaInput.y * this.sensitivity;
+        } else {
+            this.targetInputX = 0;
+            this.targetInputY = 0;
         }
 
-        // Apply friction
+        this.smoothedInputX += (this.targetInputX - this.smoothedInputX) * this.smoothFactor;
+        this.smoothedInputY += (this.targetInputY - this.smoothedInputY) * this.smoothFactor;
+
+        this.velocityX += this.smoothedInputX;
+        this.velocityY += this.smoothedInputY;
+
         this.velocityX *= this.friction;
         this.velocityY *= this.friction;
 
-        // Update rotation
         this.mesh.rotation.y += Math.tanh(this.velocityX) * this.deceleration;
         this.mesh.rotation.x += Math.tanh(this.velocityY) * this.deceleration;
     }

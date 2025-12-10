@@ -1,3 +1,38 @@
+@layer reset, base, components, utilities;
+
+:root {
+  /* Colors */
+  --color-white: #ffffff;
+  --color-white-dim: rgba(255, 255, 255, 0.6);
+  --color-white-faint: rgba(255, 255, 255, 0.5);
+  --color-transparent: transparent;
+  --color-shadow: rgba(0, 0, 0, 0.5);
+  --color-glow: rgba(255, 255, 255, 0.8);
+
+  /* Fonts */
+  --font-display: 'MajorMonoDisplay-Regular', monospace;
+  --font-body: 'RobotoMono-Light', sans-serif;
+
+  /* Sizing / Spacing */
+  --size-icon: 1em;
+  --size-nav-arrow: clamp(24px, 6vw, 48px);
+  --size-play-btn: clamp(32px, 6vw, 56px);
+  --size-menu-item: clamp(18px, 4vw, 24px);
+  --size-credits: clamp(12px, 2vw, 20px);
+  --size-warning: clamp(16px, 5vw, 28px);
+  --gap-menu: 8px;
+  --gap-state: 30px;
+
+  /* Z-Index */
+  --z-canvas: 1;
+  --z-ui: 10;
+  --z-overlay: 9999;
+
+  /* Transitions */
+  --transition-base: all 0.3s ease;
+  --transition-opacity: opacity 0.3s ease;
+}
+
 @font-face {
   font-family: 'MajorMonoDisplay-Regular';
   src: url('fonts/MajorMonoDisplay-Regular.woff2') format('woff2'),
@@ -8,299 +43,350 @@
   font-weight: normal;
 }
 
-html,
-body {
-  font-family: 'RobotoMono-Light', sans-serif;
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  padding: 0;
-  width: 100%;
+@layer reset {
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow: hidden;
+  }
 }
 
-canvas {
-  display: block;
-  height: 100vh;
-  left: 0;
-  position: absolute;
-  top: 0;
-  width: 100vw;
-  z-index: 1;
+@layer base {
+  body {
+    font-family: var(--font-body);
+  }
+
+  canvas {
+    display: block;
+    height: 100vh;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    z-index: var(--z-canvas);
+  }
 }
 
-#main-menu {
-  position: absolute;
-  top: 66%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 10;
+@layer components {
+
+  /* UI Containers */
+  #main-menu {
+    position: absolute;
+    top: 66%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-menu);
+    z-index: var(--z-ui);
+  }
+
+  #state-menu {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--gap-state);
+    z-index: var(--z-ui);
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-opacity);
+  }
+
+  /* Interactive Elements Base */
+  .btn-base {
+    background: var(--color-transparent);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: var(--transition-base);
+    font-family: inherit;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-white-dim);
+    text-shadow: 0 2px 4px var(--color-shadow);
+  }
+
+  .btn-base:hover {
+    opacity: 1;
+    color: var(--color-white);
+  }
+
+  /* Specific Buttons */
+  #play-button {
+    font-size: var(--size-play-btn);
+    letter-spacing: 2px;
+    padding: 5px 20px;
+    opacity: 0.9;
+    margin-bottom: 5px;
+    text-shadow: 0 4px 8px var(--color-shadow);
+    color: var(--color-white);
+    /* inherit flex/cursor styles from being used with specific class or just duplicates mostly */
+    background: var(--color-transparent);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: var(--transition-base);
+    font-family: inherit;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .menu-item {
+    font-size: var(--size-menu-item);
+    letter-spacing: 1px;
+    padding: 5px 15px;
+    width: 100%;
+    /* inheriting base styles manually for now to match exact previous behavior */
+    background: var(--color-transparent);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: var(--transition-base);
+    font-family: inherit;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-white-dim);
+    text-shadow: 0 2px 4px var(--color-shadow);
+  }
+
+  .menu-item:hover {
+    opacity: 1;
+    color: var(--color-white);
+  }
+
+  #play-button:hover {
+    opacity: 1;
+    color: var(--color-white);
+  }
+
+  /* Dashes Effect */
+  #play-button::before,
+  #play-button::after,
+  .menu-item::before,
+  .menu-item::after {
+    content: '-';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    color: var(--color-white);
+    font-size: 32px;
+    /* Fixed size for dash */
+    line-height: 1;
+  }
+
+  #play-button::before,
+  .menu-item::before {
+    left: 0;
+  }
+
+  #play-button::after,
+  .menu-item::after {
+    right: 0;
+  }
+
+  #play-button:hover::before,
+  .menu-item:hover::before {
+    opacity: 1;
+    left: -20px;
+  }
+
+  #play-button:hover::after,
+  .menu-item:hover::after {
+    opacity: 1;
+    right: -20px;
+  }
+
+  /* Navigation Arrows */
+  .nav-arrow {
+    background: var(--color-transparent);
+    border: none;
+    color: var(--color-white);
+    font-size: var(--size-nav-arrow);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: var(--z-ui);
+    opacity: 0;
+    pointer-events: none;
+    transition: var(--transition-opacity);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-shadow: 0 4px 8px var(--color-shadow);
+  }
+
+  .nav-arrow:hover {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+
+  #nav-left {
+    left: 20px;
+  }
+
+  #nav-right {
+    right: 20px;
+  }
+
+  /* State Buttons */
+  .state-btn {
+    background: var(--color-transparent);
+    border: none;
+    color: var(--color-white-dim);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 20px;
+    transition: var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 5px;
+    text-shadow: 0 2px 4px var(--color-shadow);
+  }
+
+  .state-btn:hover,
+  .state-btn.active {
+    color: var(--color-white);
+  }
+
+  /* Credits & Toggle */
+  #credits,
+  #ui-toggle {
+    bottom: 20px;
+    color: var(--color-white);
+    font-size: var(--size-credits);
+    opacity: 0.7;
+    position: absolute;
+    user-select: none;
+    z-index: var(--z-ui);
+  }
+
+  #credits {
+    left: 10px;
+  }
+
+  #ui-toggle {
+    right: 20px;
+    cursor: pointer;
+  }
+
+  #credits:hover,
+  #ui-toggle:hover {
+    opacity: 1;
+  }
+
+  #credits a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  #credits img,
+  .nav-item svg,
+  .icon {
+    height: 1em;
+    width: 1em;
+    vertical-align: middle;
+  }
+
+  #credits img {
+    display: none;
+    filter: brightness(0) invert(1);
+    margin-left: 0px;
+  }
+
+  #credits:hover img {
+    display: inline;
+  }
+
+  .nav-item svg,
+  .icon {
+    fill: currentColor;
+  }
+
+  .nav-item svg {
+    stroke: none;
+  }
+
+  /* Orientation Warning */
+  #rotate-warning {
+    align-items: center;
+    background: var(--color-transparent);
+    backdrop-filter: blur(6px);
+    box-sizing: border-box;
+    color: var(--color-white);
+    display: flex;
+    font-size: var(--size-warning);
+    height: 100%;
+    justify-content: center;
+    left: 0;
+    opacity: 0;
+    padding: 20px;
+    pointer-events: none;
+    position: relative;
+    text-align: center;
+    top: 0;
+    transition: var(--transition-opacity);
+    width: 100%;
+    z-index: var(--z-overlay);
+  }
+
+  #rotate-warning.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
-#play-button,
-.menu-item {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.3s ease;
-  font-family: inherit;
-  outline: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
+@layer utilities {
+  .hidden {
+    display: none !important;
+  }
+
+  .visible-controls {
+    opacity: 1 !important;
+    /* Force override for state toggling */
+    pointer-events: auto !important;
+  }
+
+  /* Specific override for nav-arrow to respect its own hover/opacity logic if needed, 
+     but .visible-controls usually toggles from 0 to something visible. 
+     In the original CSS, .nav-arrow.visible-controls had opacity: 0.5. */
+  .nav-arrow.visible-controls {
+    opacity: 0.5 !important;
+  }
+
+  .nav-arrow.visible-controls:hover {
+    opacity: 1 !important;
+  }
 }
 
-#play-button {
-  color: white;
-  font-size: clamp(32px, 6vw, 56px);
-  letter-spacing: 2px;
-  padding: 5px 20px;
-  opacity: 0.9;
-  margin-bottom: 5px;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.menu-item {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: clamp(18px, 4vw, 24px);
-  letter-spacing: 1px;
-  padding: 5px 15px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-#play-button::before,
-#play-button::after,
-.menu-item::before,
-.menu-item::after {
-  content: '-';
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0;
-  color: white;
-  font-size: clamp(32px, 6vw, 32px);
-  line-height: 1;
-}
-
-#play-button::before,
-.menu-item::before {
-  left: 0;
-}
-
-#play-button::after,
-.menu-item::after {
-  right: 0;
-}
-
-#play-button:hover,
-.menu-item:hover {
-  opacity: 1;
-  color: white;
-}
-
-#play-button:hover::before,
-.menu-item:hover::before {
-  opacity: 1;
-  left: -20px;
-}
-
-#play-button:hover::after,
-.menu-item:hover::after {
-  opacity: 1;
-  right: -20px;
-}
-
+/* Animations */
 @keyframes glowing {
   0% {
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 5px var(--color-white-faint);
   }
 
   50% {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 20px var(--color-glow);
   }
 
   100% {
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 5px var(--color-white-faint);
   }
-}
-
-#credits {
-  bottom: 20px;
-  color: white;
-  font-size: clamp(12px, 2vw, 20px);
-  left: 10px;
-  opacity: 0.7;
-  position: absolute;
-  user-select: none;
-  z-index: 10;
-}
-
-#credits:hover {
-  opacity: 1;
-}
-
-#credits a {
-  color: inherit;
-  text-decoration: none;
-}
-
-#credits img {
-  display: none;
-  filter: brightness(0) invert(1);
-  height: 1em;
-  margin-left: 0px;
-  vertical-align: middle;
-  width: 1em;
-}
-
-#credits:hover img {
-  display: inline;
-}
-
-#ui-toggle {
-  bottom: 20px;
-  right: 20px;
-  color: white;
-  font-size: clamp(12px, 2vw, 20px);
-  opacity: 0.7;
-  position: absolute;
-  user-select: none;
-  z-index: 10;
-  cursor: pointer;
-
-}
-
-#ui-toggle:hover {
-  opacity: 1;
-}
-
-#rotate-warning {
-  align-items: center;
-  background: transparent;
-  backdrop-filter: blur(6px);
-  box-sizing: border-box;
-  color: white;
-  display: flex;
-  font-size: clamp(16px, 5vw, 28px);
-  height: 100%;
-  justify-content: center;
-  left: 0;
-  opacity: 0;
-  padding: 20px;
-  pointer-events: none;
-  position: relative;
-  text-align: center;
-  top: 0;
-  transition: opacity 0.3s ease;
-  width: 100%;
-  z-index: 9999;
-}
-
-#rotate-warning.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.visible-controls {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.nav-item svg,
-.icon {
-  fill: currentColor;
-  height: 1em;
-  vertical-align: middle;
-  width: 1em;
-}
-
-.nav-item svg {
-  stroke: none;
-}
-
-.nav-arrow {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: clamp(24px, 6vw, 48px);
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  z-index: 10;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.nav-arrow.visible-controls {
-  opacity: 0.5;
-  pointer-events: auto;
-}
-
-.nav-arrow.visible-controls:hover {
-  opacity: 1;
-  transform: translateY(-50%);
-}
-
-#nav-left {
-  left: 20px;
-}
-
-#nav-right {
-  right: 20px;
-}
-
-#state-menu {
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 30px;
-  z-index: 10;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-#state-menu.visible-controls {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.state-btn {
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 20px;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding: 5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.state-btn:hover,
-.state-btn.active {
-  background: transparent;
-  color: white;
-  transform: none;
 }

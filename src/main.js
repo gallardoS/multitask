@@ -17,6 +17,7 @@ const frustumSize = 50;
 const { scene, camera, pointLight } = createScene(frustumSize);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -53,9 +54,12 @@ uiManager.onTransition = (transitionData) => {
   }
 };
 
+const postProcessingRef = { composer: null };
+
 textActor.load().then((mesh) => {
   textMesh = mesh;
   ({ composer } = createPostProcessing(renderer, scene, camera, textMesh));
+  postProcessingRef.composer = composer;
 
   new CheckOrientation({
     onLock: () => {
@@ -145,6 +149,15 @@ window.addEventListener('resize', () => {
 
 
 
-createDebugGUI({ scene, pointLight, textActor, debugParams });
+const gui = createDebugGUI({ scene, pointLight, textActor, debugParams, postProcessingRef });
+gui.hide();
+
+uiManager.onToggleUI = (visible) => {
+  if (visible) {
+    gui.show();
+  } else {
+    gui.hide();
+  }
+};
 
 apiService.startPing();

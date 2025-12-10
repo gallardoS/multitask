@@ -1,7 +1,9 @@
 import GUI from 'lil-gui';
 import * as THREE from 'three';
 
-export function createDebugGUI({ scene, pointLight, textActor, debugParams }) {
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+
+export function createDebugGUI({ scene, pointLight, textActor, debugParams, postProcessingRef }) {
     const gui = new GUI({ title: 'Shadow Debugger' });
 
     if (pointLight) {
@@ -31,7 +33,9 @@ export function createDebugGUI({ scene, pointLight, textActor, debugParams }) {
     }
 
     const checkInterval = setInterval(() => {
-        if (textActor && textActor.mesh && textActor.shadowPlane) {
+        const composer = postProcessingRef ? postProcessingRef.composer : null;
+
+        if (textActor && textActor.mesh && textActor.shadowPlane && composer) {
             clearInterval(checkInterval);
 
             const textFolder = gui.addFolder('Text Position');
@@ -40,11 +44,42 @@ export function createDebugGUI({ scene, pointLight, textActor, debugParams }) {
             textFolder.add(textActor.mesh.position, 'z', -100, 100);
             textFolder.open();
 
+            const rotationFolder = gui.addFolder('Text Rotation');
+            rotationFolder.add(textActor.mesh.rotation, 'x', -Math.PI, Math.PI).name('Rotate X');
+            rotationFolder.add(textActor.mesh.rotation, 'y', -Math.PI, Math.PI).name('Rotate Y');
+            rotationFolder.add(textActor.mesh.rotation, 'z', -Math.PI, Math.PI).name('Rotate Z');
+            rotationFolder.open();
+
             const scaleFolder = gui.addFolder('Text Scale');
             scaleFolder.add(textActor.mesh.scale, 'x', 0.1, 5).name('Scale X');
             scaleFolder.add(textActor.mesh.scale, 'y', 0.1, 5).name('Scale Y');
             scaleFolder.add(textActor.mesh.scale, 'z', 0.1, 5).name('Scale Z');
             scaleFolder.open();
+
+            const outlinePass = composer.passes.find(pass => pass instanceof OutlinePass);
+            if (outlinePass) {
+                const outlineFolder = gui.addFolder('Outline Settings');
+                outlineFolder.add(outlinePass, 'edgeStrength', 0, 10).name('Strength');
+                outlineFolder.add(outlinePass, 'edgeGlow', 0, 5).name('Glow');
+                outlineFolder.add(outlinePass, 'edgeThickness', 0, 5).name('Thickness');
+                outlineFolder.add(outlinePass, 'pulsePeriod', 0, 5).name('Pulse Period');
+                outlineFolder.add(outlinePass, 'downSampleRatio', 1, 4, 1).name('DownSample Ratio').onChange(() => {
+                    composer.setSize(window.innerWidth, window.innerHeight); // effective reset
+                });
+
+                const params = {
+                    visibleColor: outlinePass.visibleEdgeColor.getHex(),
+                    hiddenColor: outlinePass.hiddenEdgeColor.getHex()
+                };
+
+                outlineFolder.addColor(params, 'visibleColor').name('Visible Color').onChange((val) => {
+                    outlinePass.visibleEdgeColor.setHex(val);
+                });
+                outlineFolder.addColor(params, 'hiddenColor').name('Hidden Color').onChange((val) => {
+                    outlinePass.hiddenEdgeColor.setHex(val);
+                });
+                outlineFolder.open();
+            }
 
             const planeFolder = gui.addFolder('Shadow Plane');
             const plane = textActor.shadowPlane;

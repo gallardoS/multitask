@@ -9,8 +9,8 @@ export class UIManager {
             document.getElementById('state-menu')
         ];
         this.stateBtns = document.querySelectorAll('.state-btn');
-
         this.onTransition = null;
+        this.onToggleUI = null;
     }
 
     init() {
@@ -61,6 +61,10 @@ export class UIManager {
 
                 const isVisible = els[0].classList.contains('visible-controls');
                 uiToggle.textContent = isVisible ? 'hide controls' : 'show controls';
+
+                if (this.onToggleUI) {
+                    this.onToggleUI(isVisible);
+                }
             });
         }
 

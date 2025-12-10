@@ -1,4 +1,5 @@
 import { initCursorHandlers } from './utils/cursor.js';
+import { createDebugGUI } from './utils/debug.js';
 import * as THREE from 'three';
 import { createScene } from './scene/scene.js';
 import { TextActor } from './scene/TextActor.js';
@@ -13,10 +14,12 @@ import { ApiService } from './services/apiService.js';
 initCursorHandlers();
 
 const frustumSize = 50;
-const { scene, camera } = createScene(frustumSize);
+const { scene, camera, pointLight } = createScene(frustumSize);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 document.addEventListener("contextmenu", (event) => event.preventDefault());
@@ -28,6 +31,11 @@ const uiManager = new UIManager(stateManager);
 const apiService = new ApiService();
 const inputManager = new InputManager();
 const textActor = new TextActor(scene);
+const debugParams = {
+  followMouse: true,
+  smoothFactor: 0.02,
+  moveRange: 50
+};
 
 let composer, textMesh;
 
@@ -81,6 +89,23 @@ function animate() {
   }
 
   const mouseInput = inputManager.getMouse();
+
+  if (pointLight && debugParams.followMouse) {
+    if (typeof pointLight.currentX === 'undefined') {
+      pointLight.currentX = pointLight.position.x;
+      pointLight.currentY = pointLight.position.y;
+    }
+
+    const targetX = mouseInput.x * debugParams.moveRange;
+    const targetY = -mouseInput.y * debugParams.moveRange;
+
+    pointLight.currentX += (targetX - pointLight.currentX) * debugParams.smoothFactor;
+    pointLight.currentY += (targetY - pointLight.currentY) * debugParams.smoothFactor;
+
+    pointLight.position.x = pointLight.currentX;
+    pointLight.position.y = pointLight.currentY;
+  }
+
   textActor.update(mouseInput);
 
   if (composer) composer.render();
@@ -118,5 +143,8 @@ window.addEventListener('resize', () => {
   }
 });
 
+
+
+createDebugGUI({ scene, pointLight, textActor, debugParams });
 
 apiService.startPing();

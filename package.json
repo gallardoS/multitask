@@ -12,6 +12,7 @@
     "vite": "^6.2.0"
   },
   "dependencies": {
+    "lil-gui": "^0.21.0",
     "three": "^0.174.0",
     "vanilla-tilt": "^1.8.1"
   }

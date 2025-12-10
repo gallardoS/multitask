@@ -169,7 +169,7 @@ export const fragmentShader = `
 
         float blackState = smoothstep(4.0, 5.0, clamp(u_state, 4.0, 5.0));
         
-        color = mix(color, vec3(0.0), blackState);
+        color = mix(color, vec3(0.05), blackState);
 
         return color;
     }

@@ -36,7 +36,7 @@ export class StateManager {
     update() {
         if (!this.isTransitioning) return null;
 
-        this.transitionProgress += 0.01;
+        this.transitionProgress += 0.005;
 
         let result = {};
 

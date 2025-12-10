@@ -2,7 +2,7 @@ export class UIManager {
     constructor(stateManager) {
         this.stateManager = stateManager;
         this.uiElements = [
-            document.getElementById('play-button'),
+            document.getElementById('main-menu'),
             document.getElementById('credits'),
             document.getElementById('nav-left'),
             document.getElementById('nav-right'),
@@ -46,6 +46,23 @@ export class UIManager {
                 this.updateActiveButton();
             });
         });
+
+        const uiToggle = document.getElementById('ui-toggle');
+        if (uiToggle) {
+            uiToggle.addEventListener('click', () => {
+                const els = [
+                    document.getElementById('nav-left'),
+                    document.getElementById('nav-right'),
+                    document.getElementById('state-menu')
+                ];
+                els.forEach(el => {
+                    if (el) el.classList.toggle('visible-controls');
+                });
+
+                const isVisible = els[0].classList.contains('visible-controls');
+                uiToggle.textContent = isVisible ? 'hide controls' : 'show controls';
+            });
+        }
 
         this.updateActiveButton();
     }

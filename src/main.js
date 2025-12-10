@@ -80,8 +80,8 @@ function animate() {
     }
   }
 
-  const inputDelta = inputManager.getDelta();
-  textActor.update(inputDelta);
+  const mouseInput = inputManager.getMouse();
+  textActor.update(mouseInput);
 
   if (composer) composer.render();
   requestAnimationFrame(animate);

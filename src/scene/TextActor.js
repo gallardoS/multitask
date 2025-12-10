@@ -6,17 +6,13 @@ export class TextActor {
     constructor(scene) {
         this.scene = scene;
         this.mesh = null;
-        this.velocityX = 0;
-        this.velocityY = 0;
-        this.friction = 0.5;
-        this.deceleration = 0.3;
-        this.sensitivity = 0.5;
 
-        this.targetInputX = 0;
-        this.targetInputY = 0;
-        this.smoothedInputX = 0;
-        this.smoothedInputY = 0;
-        this.smoothFactor = 0.05;
+        this.maxRotationX = 0.15; // ~8.5 degrees
+        this.maxRotationY = 0.22; // ~12.5 degrees
+
+        this.currentRotationX = 0;
+        this.currentRotationY = 0;
+        this.smoothFactor = 0.01;
     }
 
 
@@ -59,30 +55,17 @@ export class TextActor {
         this.mesh.scale.setScalar(1);
     }
 
-    update(deltaInput) {
+    update(mouseInput) {
         if (!this.mesh) return;
 
+        const targetRotY = -mouseInput.x * this.maxRotationY;
+        const targetRotX = -mouseInput.y * this.maxRotationX;
 
+        this.currentRotationY += (targetRotY - this.currentRotationY) * this.smoothFactor;
+        this.currentRotationX += (targetRotX - this.currentRotationX) * this.smoothFactor;
 
-        if (deltaInput.x !== 0 || deltaInput.y !== 0) {
-            this.targetInputX = deltaInput.x * this.sensitivity;
-            this.targetInputY = deltaInput.y * this.sensitivity;
-        } else {
-            this.targetInputX = 0;
-            this.targetInputY = 0;
-        }
-
-        this.smoothedInputX += (this.targetInputX - this.smoothedInputX) * this.smoothFactor;
-        this.smoothedInputY += (this.targetInputY - this.smoothedInputY) * this.smoothFactor;
-
-        this.velocityX += this.smoothedInputX;
-        this.velocityY += this.smoothedInputY;
-
-        this.velocityX *= this.friction;
-        this.velocityY *= this.friction;
-
-        this.mesh.rotation.y += Math.tanh(this.velocityX) * this.deceleration;
-        this.mesh.rotation.x += Math.tanh(this.velocityY) * this.deceleration;
+        this.mesh.rotation.y = this.currentRotationY;
+        this.mesh.rotation.x = this.currentRotationX;
     }
 
     setVisible(visible) {

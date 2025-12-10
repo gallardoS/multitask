@@ -23,4 +23,8 @@ export class InputManager {
         this.delta.y = 0;
         return d;
     }
+
+    getMouse() {
+        return { ...this.mouse };
+    }
 }

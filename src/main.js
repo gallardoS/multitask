@@ -35,7 +35,8 @@ const textActor = new TextActor(scene);
 const debugParams = {
   followMouse: true,
   smoothFactor: 0.02,
-  moveRange: 50
+  moveRange: 50,
+  limitY: -0.5
 };
 
 let composer, textMesh;
@@ -101,7 +102,8 @@ function animate() {
     }
 
     const targetX = mouseInput.x * debugParams.moveRange;
-    const targetY = -mouseInput.y * debugParams.moveRange;
+    const clampedY = Math.min(mouseInput.y, debugParams.limitY);
+    const targetY = -clampedY * debugParams.moveRange;
 
     pointLight.currentX += (targetX - pointLight.currentX) * debugParams.smoothFactor;
     pointLight.currentY += (targetY - pointLight.currentY) * debugParams.smoothFactor;

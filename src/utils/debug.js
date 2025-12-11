@@ -17,6 +17,7 @@ export function createDebugGUI({ scene, pointLight, textActor, debugParams, post
             const moveFolder = lightingFolder.addFolder('Movement Params');
             moveFolder.add(debugParams, 'smoothFactor', 0.001, 0.2).name('Friction/Smooth');
             moveFolder.add(debugParams, 'moveRange', 0, 200).name('Range');
+            moveFolder.add(debugParams, 'limitY', -1, 1).name('Vertical Limit (Y)');
         }
 
         lightingFolder.add(pointLight.position, 'x', -200, 200);

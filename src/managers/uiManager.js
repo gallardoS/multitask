@@ -60,7 +60,7 @@ export class UIManager {
                 });
 
                 const isVisible = els[0].classList.contains('visible-controls');
-                uiToggle.textContent = isVisible ? 'hide controls' : 'show controls';
+                uiToggle.textContent = isVisible ? 'dev mode on' : 'dev mode off';
 
                 if (this.onToggleUI) {
                     this.onToggleUI(isVisible);

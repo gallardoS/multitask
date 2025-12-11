@@ -29,6 +29,8 @@ export function createDebugGUI({ scene, pointLight, textActor, debugParams, post
             if (value) scene.add(helper);
             else scene.remove(helper);
         });
+
+        lightingFolder.close();
     }
 
     const checkInterval = setInterval(() => {
@@ -38,6 +40,7 @@ export function createDebugGUI({ scene, pointLight, textActor, debugParams, post
             clearInterval(checkInterval);
 
             const textActorFolder = gui.addFolder('Text Actor');
+            textActorFolder.close();
 
             const textPosFolder = textActorFolder.addFolder('Position');
             textPosFolder.add(textActor.mesh.position, 'x', -100, 100);
@@ -55,6 +58,8 @@ export function createDebugGUI({ scene, pointLight, textActor, debugParams, post
             scaleFolder.add(textActor.mesh.scale, 'z', 0.1, 5).name('Scale Z');
 
             const shadowsFolder = gui.addFolder('Shadows');
+            shadowsFolder.close();
+
             const plane = textActor.shadowPlane;
 
             shadowsFolder.add(plane.position, 'z', -20, 5).name('Distance (Z)');
@@ -67,6 +72,8 @@ export function createDebugGUI({ scene, pointLight, textActor, debugParams, post
             }
 
             const ppFolder = gui.addFolder('Post-Processing');
+            ppFolder.close();
+
             const outlinePass = composer.passes.find(pass => pass instanceof OutlinePass);
 
             if (outlinePass) {

@@ -1,7 +1,6 @@
 @layer reset, base, components, utilities;
 
 :root {
-  /* Colors */
   --color-white: #ffffff;
   --color-white-dim: rgba(255, 255, 255, 0.6);
   --color-white-faint: rgba(255, 255, 255, 0.5);
@@ -9,11 +8,9 @@
   --color-shadow: rgba(0, 0, 0, 0.5);
   --color-glow: rgba(255, 255, 255, 0.8);
 
-  /* Fonts */
   --font-display: 'MajorMonoDisplay-Regular', monospace;
   --font-body: 'RobotoMono-Light', sans-serif;
 
-  /* Sizing / Spacing */
   --size-icon: 1em;
   --size-nav-arrow: clamp(24px, 6vw, 48px);
   --size-play-btn: clamp(32px, 6vw, 56px);
@@ -23,12 +20,10 @@
   --gap-menu: 8px;
   --gap-state: 30px;
 
-  /* Z-Index */
   --z-canvas: 1;
   --z-ui: 10;
   --z-overlay: 9999;
 
-  /* Transitions */
   --transition-base: all 0.3s ease;
   --transition-opacity: opacity 0.3s ease;
 }
@@ -69,11 +64,22 @@
     width: 100vw;
     z-index: var(--z-canvas);
   }
+
+  body::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
+    z-index: 5;
+    pointer-events: none;
+  }
 }
 
 @layer components {
 
-  /* UI Containers */
   #main-menu {
     position: absolute;
     top: 66%;
@@ -98,7 +104,6 @@
     transition: var(--transition-opacity);
   }
 
-  /* Interactive Elements Base */
   .btn-base {
     background: var(--color-transparent);
     border: none;
@@ -119,7 +124,6 @@
     color: var(--color-white);
   }
 
-  /* Specific Buttons */
   #play-button {
     font-size: var(--size-play-btn);
     letter-spacing: 2px;
@@ -128,7 +132,6 @@
     margin-bottom: 5px;
     text-shadow: 0 4px 8px var(--color-shadow);
     color: var(--color-white);
-    /* inherit flex/cursor styles from being used with specific class or just duplicates mostly */
     background: var(--color-transparent);
     border: none;
     cursor: pointer;
@@ -147,7 +150,6 @@
     letter-spacing: 1px;
     padding: 5px 15px;
     width: 100%;
-    /* inheriting base styles manually for now to match exact previous behavior */
     background: var(--color-transparent);
     border: none;
     cursor: pointer;
@@ -172,7 +174,6 @@
     color: var(--color-white);
   }
 
-  /* Dashes Effect */
   #play-button::before,
   #play-button::after,
   .menu-item::before,
@@ -184,7 +185,6 @@
     opacity: 0;
     color: var(--color-white);
     font-size: 32px;
-    /* Fixed size for dash */
     line-height: 1;
   }
 
@@ -210,7 +210,7 @@
     right: -20px;
   }
 
-  /* Navigation Arrows */
+
   .nav-arrow {
     background: var(--color-transparent);
     border: none;
@@ -244,7 +244,6 @@
     right: 20px;
   }
 
-  /* State Buttons */
   .state-btn {
     background: var(--color-transparent);
     border: none;
@@ -266,7 +265,6 @@
     color: var(--color-white);
   }
 
-  /* Credits & Toggle */
   #credits,
   #ui-toggle {
     bottom: 20px;
@@ -324,7 +322,6 @@
     stroke: none;
   }
 
-  /* Orientation Warning */
   #rotate-warning {
     align-items: center;
     background: var(--color-transparent);
@@ -360,13 +357,9 @@
 
   .visible-controls {
     opacity: 1 !important;
-    /* Force override for state toggling */
     pointer-events: auto !important;
   }
 
-  /* Specific override for nav-arrow to respect its own hover/opacity logic if needed, 
-     but .visible-controls usually toggles from 0 to something visible. 
-     In the original CSS, .nav-arrow.visible-controls had opacity: 0.5. */
   .nav-arrow.visible-controls {
     opacity: 0.5 !important;
   }
@@ -376,7 +369,6 @@
   }
 }
 
-/* Animations */
 @keyframes glowing {
   0% {
     box-shadow: 0 0 5px var(--color-white-faint);

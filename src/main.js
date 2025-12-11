@@ -36,7 +36,7 @@ const debugParams = {
   followMouse: true,
   smoothFactor: 0.02,
   moveRange: 50,
-  limitY: -0.5
+  limitY: -0.7
 };
 
 let composer, textMesh;

@@ -52,6 +52,11 @@ export class UIManager {
             playBtn.addEventListener('click', () => {
                 if (!this.stateManager.canTransition()) return;
 
+                const mainMenu = document.getElementById('main-menu');
+                if (mainMenu) {
+                    mainMenu.classList.add('fade-out');
+                }
+
                 const targetState = 1;
 
                 if (this.stateManager.currentState !== targetState) {
@@ -86,6 +91,13 @@ export class UIManager {
     }
 
     _handleTransition(targetState) {
+        if (targetState === 0) {
+            const mainMenu = document.getElementById('main-menu');
+            if (mainMenu) {
+                mainMenu.classList.remove('fade-out');
+            }
+        }
+
         const updateData = this.stateManager.triggerTransition(targetState);
         if (this.onTransition) {
             this.onTransition(updateData);

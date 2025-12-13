@@ -183,6 +183,13 @@
     flex-direction: column;
     gap: var(--gap-menu);
     z-index: var(--z-ui);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.4s ease-in;
+  }
+
+  #main-menu.fade-out {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1s ease-out;
   }
 
   #state-menu {

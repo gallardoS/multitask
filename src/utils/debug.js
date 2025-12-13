@@ -3,8 +3,45 @@ import * as THREE from 'three';
 
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
-export function createDebugGUI({ scene, pointLight, textActor, debugParams, postProcessingRef }) {
+export function createDebugGUI({ scene, pointLight, textActor, debugParams, postProcessingRef, backgroundUniforms }) {
     const gui = new GUI({ title: 'Shadow Debugger' });
+
+    if (backgroundUniforms) {
+        const colorFolder = gui.addFolder('Colors');
+        colorFolder.close();
+
+        const params = {
+            colorA: backgroundUniforms.u_colorA.value.getHex(),
+            colorB: backgroundUniforms.u_colorB.value.getHex(),
+            colorC: backgroundUniforms.u_colorC.value.getHex(),
+            colorD: backgroundUniforms.u_colorD.value.getHex(),
+            resetColors: () => {
+                const originalA = 0xe9433f;
+                const originalB = 0xcde249;
+                const originalC = 0x42cc68;
+                const originalD = 0x3ebddf;
+
+                backgroundUniforms.u_colorA.value.setHex(originalA);
+                backgroundUniforms.u_colorB.value.setHex(originalB);
+                backgroundUniforms.u_colorC.value.setHex(originalC);
+                backgroundUniforms.u_colorD.value.setHex(originalD);
+
+                params.colorA = originalA;
+                params.colorB = originalB;
+                params.colorC = originalC;
+                params.colorD = originalD;
+
+                colorFolder.controllers.forEach(c => c.updateDisplay());
+
+            }
+        };
+
+        colorFolder.addColor(params, 'colorA').name('Color A (Red)').onChange(val => backgroundUniforms.u_colorA.value.setHex(val));
+        colorFolder.addColor(params, 'colorB').name('Color B (Yellow)').onChange(val => backgroundUniforms.u_colorB.value.setHex(val));
+        colorFolder.addColor(params, 'colorC').name('Color C (Green)').onChange(val => backgroundUniforms.u_colorC.value.setHex(val));
+        colorFolder.addColor(params, 'colorD').name('Color D (Blue)').onChange(val => backgroundUniforms.u_colorD.value.setHex(val));
+        colorFolder.add(params, 'resetColors').name('Reset to Original');
+    }
 
     if (pointLight) {
         const lightingFolder = gui.addFolder('Lighting');
@@ -97,6 +134,31 @@ export function createDebugGUI({ scene, pointLight, textActor, debugParams, post
                 });
                 outlineFolder.addColor(params, 'hiddenColor').name('Hidden Color').onChange((val) => {
                     outlinePass.hiddenEdgeColor.setHex(val);
+                });
+            }
+            const uiFolder = gui.addFolder('UI / Glass');
+            uiFolder.close();
+
+            const pauseMenu = document.getElementById('pause-menu');
+            if (pauseMenu) {
+                const glassParams = {
+                    blur: 20,
+                    opacity: 0,
+                    saturation: 100
+                };
+
+                uiFolder.add(glassParams, 'blur', 0, 50).name('Blur (px)').onChange(val => {
+                    pauseMenu.style.backdropFilter = `blur(${val}px) saturate(${glassParams.saturation}%)`;
+                    pauseMenu.style.webkitBackdropFilter = `blur(${val}px) saturate(${glassParams.saturation}%)`;
+                });
+
+                uiFolder.add(glassParams, 'opacity', 0, 1).name('Transparency (Alpha)').onChange(val => {
+                    pauseMenu.style.backgroundColor = `rgba(255, 255, 255, ${val})`;
+                });
+
+                uiFolder.add(glassParams, 'saturation', 0, 200).name('Saturation (%)').onChange(val => {
+                    pauseMenu.style.backdropFilter = `blur(${glassParams.blur}px) saturate(${val}%)`;
+                    pauseMenu.style.webkitBackdropFilter = `blur(${glassParams.blur}px) saturate(${val}%)`;
                 });
             }
         }

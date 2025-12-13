@@ -10,7 +10,11 @@ export function createBackground(scene) {
         u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         u_stateA: { value: 0.0 },
         u_stateB: { value: 0.0 },
-        u_mix: { value: 0.0 }
+        u_mix: { value: 0.0 },
+        u_colorA: { value: new THREE.Color('#f0567d') },
+        u_colorB: { value: new THREE.Color('#f2e450') },
+        u_colorC: { value: new THREE.Color('#43ea8b') },
+        u_colorD: { value: new THREE.Color('#839dec') }
     };
 
     const geometry = new THREE.PlaneGeometry(2, 2);

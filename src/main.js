@@ -75,6 +75,12 @@ textActor.load().then((mesh) => {
 });
 
 function animate() {
+  if (isPaused) {
+    if (composer) composer.render();
+    requestAnimationFrame(animate);
+    return;
+  }
+
   const time = performance.now() * 0.001;
   uniforms.u_time.value = time;
 
@@ -118,6 +124,33 @@ function animate() {
   requestAnimationFrame(animate);
 }
 
+let isPaused = false;
+
+function togglePause(forceState) {
+  if (typeof forceState === 'boolean') {
+    isPaused = forceState;
+  } else {
+    isPaused = !isPaused;
+  }
+
+  uiManager.togglePauseMenu(isPaused);
+}
+
+uiManager.initPauseMenu(
+  (showMenu) => togglePause(showMenu),
+  () => window.location.reload(),
+  () => { window.location.href = '/'; }
+);
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    if (stateManager.currentState > 0) {
+      togglePause();
+    }
+  }
+});
+
+const originalAnimate = animate;
 animate();
 
 window.addEventListener('resize', () => {
@@ -151,7 +184,7 @@ window.addEventListener('resize', () => {
 
 
 
-const gui = createDebugGUI({ scene, pointLight, textActor, debugParams, postProcessingRef });
+const gui = createDebugGUI({ scene, pointLight, textActor, debugParams, postProcessingRef, backgroundUniforms: uniforms });
 gui.hide();
 
 uiManager.onToggleUI = (visible) => {

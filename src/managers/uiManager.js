@@ -47,6 +47,20 @@ export class UIManager {
             });
         });
 
+        const playBtn = document.getElementById('play-button');
+        if (playBtn) {
+            playBtn.addEventListener('click', () => {
+                if (!this.stateManager.canTransition()) return;
+
+                const targetState = 1;
+
+                if (this.stateManager.currentState !== targetState) {
+                    this._handleTransition(targetState);
+                    this.updateActiveButton();
+                }
+            });
+        }
+
         const uiToggle = document.getElementById('ui-toggle');
         if (uiToggle) {
             uiToggle.addEventListener('click', () => {
@@ -100,4 +114,53 @@ export class UIManager {
             }
         });
     }
+
+    initPauseMenu(onPauseToggle, onRestart, onHome) {
+        const pauseMenu = document.getElementById('pause-menu');
+        const resumeBtn = document.getElementById('resume-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const homeBtn = document.getElementById('home-btn');
+
+        if (resumeBtn) {
+            resumeBtn.addEventListener('click', () => {
+                if (onPauseToggle) onPauseToggle(false);
+            });
+        }
+
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                if (onRestart) onRestart();
+            });
+        }
+
+        if (homeBtn) {
+            homeBtn.addEventListener('click', () => {
+                if (onHome) onHome();
+            });
+        }
+
+        this.pauseMenu = pauseMenu;
+
+    }
+
+    togglePauseMenu(show) {
+        if (this.pauseMenu) {
+            if (show) {
+                this.pauseMenu.classList.remove('hidden');
+
+                void this.pauseMenu.offsetWidth;
+                this.pauseMenu.classList.add('visible');
+            } else {
+                this.pauseMenu.classList.remove('visible');
+
+                setTimeout(() => {
+                    if (!this.pauseMenu.classList.contains('visible')) {
+                        this.pauseMenu.classList.add('hidden');
+                    }
+                }, 300);
+            }
+        }
+    }
+
+
 }

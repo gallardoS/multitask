@@ -11,11 +11,12 @@ export const fragmentShader = `
     uniform float u_stateA;
     uniform float u_stateB;
     uniform float u_mix;
+    uniform vec3 u_colorA;
+    uniform vec3 u_colorB;
+    uniform vec3 u_colorC;
+    uniform vec3 u_colorD;
 
-    vec3 colorA = vec3(233.0/255.0, 67.0/255.0, 63.0/255.0);
-    vec3 colorB = vec3(205.0/255.0, 226.0/255.0, 73.0/255.0);
-    vec3 colorC = vec3(66.0/255.0, 204.0/255.0, 104.0/255.0);
-    vec3 colorD = vec3(62.0/255.0, 189.0/255.0, 223.0/255.0);
+
 
     vec3 getStateColor(float u_state, vec2 uv, float time) {
         vec2 waveUV = uv;
@@ -161,10 +162,10 @@ export const fragmentShader = `
         float total = influenceA + influenceB + influenceC + influenceD;
 
         vec3 color = (
-            colorA * influenceA +
-            colorB * influenceB +
-            colorC * influenceC +
-            colorD * influenceD
+            u_colorA * influenceA +
+            u_colorB * influenceB +
+            u_colorC * influenceC +
+            u_colorD * influenceD
         ) / total;
 
         float blackState = smoothstep(4.0, 5.0, clamp(u_state, 4.0, 5.0));

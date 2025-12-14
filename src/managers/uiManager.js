@@ -11,6 +11,7 @@ export class UIManager {
         this.stateBtns = document.querySelectorAll('.state-btn');
         this.onTransition = null;
         this.onToggleUI = null;
+        this.onPlay = null;
     }
 
     init() {
@@ -57,6 +58,10 @@ export class UIManager {
                     mainMenu.classList.add('fade-out');
                 }
 
+                if (this.onPlay) {
+                    this.onPlay();
+                }
+
                 const targetState = 1;
 
                 if (this.stateManager.currentState !== targetState) {
@@ -99,6 +104,8 @@ export class UIManager {
         }
 
         const updateData = this.stateManager.triggerTransition(targetState);
+        updateData.targetState = targetState;
+
         if (this.onTransition) {
             this.onTransition(updateData);
         }

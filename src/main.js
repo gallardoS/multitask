@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { createScene } from './scene/scene.js';
 import { TextActor } from './scene/TextActor.js';
 import { createPostProcessing } from './scene/postprocessing.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { createBackground } from './scene/background.js';
 import { CheckOrientation } from './utils/checkOrientation.js';
 import { StateManager } from './managers/stateManager.js';
@@ -45,6 +46,26 @@ uiManager.init();
 inputManager.init();
 
 uiManager.onTransition = (transitionData) => {
+  if (transitionData.targetState === 0) {
+    if (textActor) {
+      textActor.setVisible(true);
+      if (textActor.shadowPlane && textActor.shadowPlane.material) {
+        textActor.shadowPlane.material.opacity = 0.15;
+      }
+    }
+
+    if (postProcessingRef && postProcessingRef.composer) {
+      const outlinePass = postProcessingRef.composer.passes.find(pass =>
+        pass instanceof OutlinePass || (pass.constructor && pass.constructor.name === 'OutlinePass')
+      );
+      if (outlinePass) {
+        outlinePass.edgeStrength = 2;
+        outlinePass.edgeGlow = 1;
+        outlinePass.edgeThickness = 1;
+      }
+    }
+  }
+
   if (transitionData.mode === 'sequential') {
     uniforms.u_stateA.value = transitionData.stateA;
     uniforms.u_mix.value = transitionData.mix;
@@ -193,6 +214,56 @@ uiManager.onToggleUI = (visible) => {
   } else {
     gui.hide();
   }
+};
+
+uiManager.onPlay = () => {
+  const composer = postProcessingRef ? postProcessingRef.composer : null;
+  if (!composer) return;
+
+  const outlinePass = composer.passes.find(pass =>
+    pass instanceof OutlinePass || (pass.constructor && pass.constructor.name === 'OutlinePass')
+  );
+
+  if (!outlinePass) return;
+
+  const shadowMaterial = textActor ? textActor.shadowPlane.material : null;
+  const startShadowOpacity = shadowMaterial ? shadowMaterial.opacity : 0;
+
+  const startStrength = outlinePass.edgeStrength;
+  const startGlow = outlinePass.edgeGlow;
+  const startThickness = outlinePass.edgeThickness;
+
+  const endStrength = 0;
+  const endGlow = 0;
+  const endThickness = 10;
+
+  const duration = 1000;
+  const startTime = performance.now();
+
+  function animateOutline() {
+    const elapsed = performance.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    const ease = 1 - (1 - progress) * (1 - progress);
+
+    outlinePass.edgeStrength = startStrength + (endStrength - startStrength) * ease;
+    outlinePass.edgeGlow = startGlow + (endGlow - startGlow) * ease;
+    outlinePass.edgeThickness = startThickness + (endThickness - startThickness) * ease;
+
+    if (shadowMaterial) {
+      shadowMaterial.opacity = startShadowOpacity * (1 - ease);
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateOutline);
+    } else {
+      if (textActor) {
+        textActor.setVisible(false);
+      }
+    }
+  }
+
+  animateOutline();
 };
 
 apiService.startPing();

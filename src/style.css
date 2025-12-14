@@ -449,6 +449,25 @@
     opacity: 1;
     pointer-events: auto;
   }
+
+  #score-display {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-white);
+    font-size: var(--size-menu-item);
+    text-shadow: 0 2px 4px var(--color-shadow);
+    z-index: 102;
+    pointer-events: none;
+    transition: opacity 1s ease;
+    opacity: 0;
+    font-family: var(--font-display);
+  }
+
+  #score-display.visible {
+    opacity: 1;
+  }
 }
 
 @layer utilities {

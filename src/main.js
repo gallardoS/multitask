@@ -11,6 +11,7 @@ import { StateManager } from './managers/stateManager.js';
 import { UIManager } from './managers/uiManager.js';
 import { InputManager } from './managers/inputManager.js';
 import { ApiService } from './services/apiService.js';
+import { ScoreManager } from './managers/ScoreManager.js';
 
 initCursorHandlers();
 
@@ -32,6 +33,7 @@ const stateManager = new StateManager();
 const uiManager = new UIManager(stateManager);
 const apiService = new ApiService();
 const inputManager = new InputManager();
+const scoreManager = new ScoreManager();
 const textActor = new TextActor(scene);
 const debugParams = {
   followMouse: true,
@@ -155,18 +157,44 @@ function togglePause(forceState) {
   }
 
   uiManager.togglePauseMenu(isPaused);
+
+  if (isPaused) {
+    scoreManager.stop();
+  } else {
+    scoreManager.start();
+  }
 }
 
 uiManager.initPauseMenu(
   (showMenu) => togglePause(showMenu),
-  () => window.location.reload(),
-  () => { window.location.href = '/'; }
+  () => {
+    togglePause(false);
+    scoreManager.reset();
+    scoreManager.start();
+    uiManager._handleTransition(1);
+    uiManager.updateActiveButton();
+  },
+  () => {
+    togglePause(false);
+    scoreManager.stop();
+    scoreManager.hide();
+    uiManager._handleTransition(0);
+    uiManager.updateActiveButton();
+  }
 );
 
 window.addEventListener('keydown', (e) => {
   if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
     if (stateManager.currentState > 0) {
       togglePause();
+    }
+  }
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (stateManager.currentState > 0 && !isPaused) {
+      togglePause(true);
     }
   }
 });
@@ -217,6 +245,8 @@ uiManager.onToggleUI = (visible) => {
 };
 
 uiManager.onPlay = () => {
+  scoreManager.reset();
+  scoreManager.start();
   const composer = postProcessingRef ? postProcessingRef.composer : null;
   if (!composer) return;
 

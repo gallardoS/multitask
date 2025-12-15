@@ -68,6 +68,14 @@ uiManager.onTransition = (transitionData) => {
     }
   }
 
+  if (textActor && textActor.shadowPlane && textActor.shadowPlane.material) {
+    if (transitionData.targetState === 5) {
+      textActor.shadowPlane.material.opacity = 0;
+    } else {
+      textActor.shadowPlane.material.opacity = 0.15;
+    }
+  }
+
   if (transitionData.mode === 'sequential') {
     uniforms.u_stateA.value = transitionData.stateA;
     uniforms.u_mix.value = transitionData.mix;

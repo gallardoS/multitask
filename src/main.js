@@ -114,7 +114,7 @@ function animate() {
   totalTime += delta;
   uniforms.u_time.value = totalTime;
 
-  const updateResult = stateManager.update();
+  const updateResult = stateManager.update(delta);
   if (updateResult) {
     if (updateResult.finished) {
       uniforms.u_stateA.value = updateResult.stateA;
@@ -141,8 +141,10 @@ function animate() {
     const clampedY = Math.min(mouseInput.y, debugParams.limitY);
     const targetY = -clampedY * debugParams.moveRange;
 
-    pointLight.currentX += (targetX - pointLight.currentX) * debugParams.smoothFactor;
-    pointLight.currentY += (targetY - pointLight.currentY) * debugParams.smoothFactor;
+    const smoothTime = 1.0 - Math.pow(1.0 - debugParams.smoothFactor, delta * 60);
+
+    pointLight.currentX += (targetX - pointLight.currentX) * smoothTime;
+    pointLight.currentY += (targetY - pointLight.currentY) * smoothTime;
 
     pointLight.position.x = pointLight.currentX;
     pointLight.position.y = pointLight.currentY;

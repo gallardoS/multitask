@@ -8,6 +8,7 @@ export class StateManager {
         this.isTransitioning = false;
         this.transitionMode = 'crossfade';
         this.MAX_STATE = maxState;
+        this.transitionSpeed = 0.5;
     }
 
     triggerTransition(target) {
@@ -33,10 +34,10 @@ export class StateManager {
         }
     }
 
-    update() {
+    update(delta) {
         if (!this.isTransitioning) return null;
 
-        this.transitionProgress += 0.005;
+        this.transitionProgress += this.transitionSpeed * delta;
 
         let result = {};
 

@@ -97,15 +97,22 @@ textActor.load().then((mesh) => {
   });
 });
 
+let totalTime = 0;
+let lastTime = performance.now();
+
 function animate() {
+  const now = performance.now();
+  const delta = (now - lastTime) * 0.001;
+  lastTime = now;
+
   if (isPaused) {
     if (composer) composer.render();
     requestAnimationFrame(animate);
     return;
   }
 
-  const time = performance.now() * 0.001;
-  uniforms.u_time.value = time;
+  totalTime += delta;
+  uniforms.u_time.value = totalTime;
 
   const updateResult = stateManager.update();
   if (updateResult) {

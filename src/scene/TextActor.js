@@ -105,6 +105,16 @@ export class TextActor {
         this.mesh.scale.setScalar(1);
     }
 
+    setState(stateIndex) {
+        if (this.shadowPlane && this.shadowPlane.material) {
+            if (stateIndex === 5) {
+                this.shadowPlane.material.opacity = 0;
+            } else {
+                this.shadowPlane.material.opacity = 0.15;
+            }
+        }
+    }
+
     update(mouseInput) {
         if (!this.mesh) return;
 
